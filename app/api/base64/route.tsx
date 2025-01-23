@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    const match = imgtag.match(/<img[^>]+src="([^">]+)"/);
+    // src may be in quotes or not
+    const match = imgtag.match(/<img[^>]+src="?([^" >]+)/);
     if (!match) {
       return NextResponse.json(
         { error: 'No valid image URL found' },
