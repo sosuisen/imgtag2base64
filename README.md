@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Overview
 
-## Getting Started
+This API endpoint is designed to convert an image URL extracted from an HTML `<img>` tag into a base64 encoded string. It accepts a POST request with a JSON payload containing the `imgtag` key, which should include the HTML `<img>` tag. The endpoint then extracts the `src` attribute from the tag, fetches the image, and returns its base64 representation.
 
-First, run the development server:
+### Endpoint
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **POST /api/base64**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Request
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Body**: JSON object with the following structure:
+  ```json
+  {
+    "imgtag": "<img src='https://example.com/image.jpg'>"
+  }
+  ```
+  The `src` attribute can be enclosed in quotes or not, allowing both:
+  ```json
+  {
+    "imgtag": "<img src='https://example.com/image.jpg'>"
+  }
+  ```
+  and
+  ```json
+  {
+    "imgtag": "<img src=https://example.com/image.jpg>"
+  }
+  ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+Allowing the omission of quotes can be useful in agent platforms that lack advanced string processing.
 
-To learn more about Next.js, take a look at the following resources:
+### Response
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Success**: Returns a JSON object with the base64 encoded image.
+  ```json
+  {
+    "base64": "iVBORw0KGgoAAAANSUhEUgAA..."
+  }
+  ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Error**: Returns a JSON object with an error message and appropriate HTTP status code.
+  ```json
+  {
+    "error": "Error message"
+  }
+  ```
 
-## Deploy on Vercel
+### Error Handling
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- If `imgtag` is missing, a 400 status code is returned with an error message.
+- If no valid image URL is found in the `imgtag`, a 400 status code is returned.
+- If the image cannot be fetched, a 500 status code is returned.
+- If any other error occurs during processing, a 500 status code is returned.
